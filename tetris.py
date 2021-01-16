@@ -69,6 +69,30 @@ def has_conflict(gd, block_x, block_y, direction):
     return False
 
 
+def replace_stone(old_row, new_stone_idx, new_stone_letter):
+    part1 = old_row[0:new_stone_idx]
+    part3 = old_row[new_stone_idx + 1:len(old_row)]
+    return part1 + new_stone_letter + part3
+
+
+def copy_block_to_board(gd):
+    board = gd["board"]
+    block_letter = gd["current_block"][0]
+    direction = gd["current_block"][1]
+    block = gd["blocks"][block_letter][direction]
+    block_x = gd["x_pos"]
+    block_y = gd["y_pos"]
+    for r in range(0, 4):
+        for c in range(4):
+            if block_x + c <= 11 and block_y + r <= 20:
+                board_stone = board[block_y + r][block_x + c]
+                block_stone = block[r][c]
+                if board_stone == "." and block_stone != ".":
+                    old_row = board[block_y + r]
+                    print(board[block_y + r])
+                    board[block_y + r] = replace_stone(old_row, block_x + c, block_stone)
+                    print(board[block_y + r])
+
 def move_block_left(gd):
     if not has_conflict(gd, gd["x_pos"] - 1, gd["y_pos"], gd["current_block"][1]):
         gd["x_pos"] -= 1
@@ -123,6 +147,8 @@ def draw_walls(gd):
 
 
 def draw_block(gd):
+    if "current_block" not in gd or gd["current_block"] is None:
+        return
     block_letter = gd["current_block"][0]
     block_direction = gd["current_block"][1]
     current_block = gd["blocks"][block_letter][block_direction]
@@ -145,11 +171,25 @@ def draw_held_block(gd):
     pass
 
 
+def draw_board(gd):
+    board_start_x = 200
+    board_start_y = 50
+    board = gd["board"]
+    for r in range(20):
+        for c in range(12):
+            stone_x = board_start_x + c * 50
+            stone_y = board_start_y + r * 50
+            board_stone = board[r][c]
+            if board_stone != "x" and board_stone != ".":
+                gd["screen"].blit(gd[f"block_{board_stone}.png"],(stone_x,stone_y))
+
+
 def draw_all(gd):
     draw_background(gd)
     draw_side_panels(gd)
     draw_stage(gd)
     draw_walls(gd)
+    draw_board(gd)
     draw_block(gd)
     draw_next_block(gd)
     draw_held_block(gd)
@@ -179,12 +219,16 @@ def play_music():
     pygame.mixer.music.play()
 
 
+def can_go_down(gd):
+    if not has_conflict(gd, gd["x_pos"], gd["y_pos"] + 1, gd["current_block"][1]):
+        return True
+    return False
+
+
 def play_game(gd):
     clock = pygame.time.Clock()
     running = True
 
-    gd["x_pos"] = 4
-    gd["y_pos"] = 0
 
     play_music()
     internal_pos_y = 0
@@ -192,6 +236,8 @@ def play_game(gd):
         dt = clock.tick(30)
 
         if "current_block" not in gd or gd["current_block"] is None:
+            gd["x_pos"] = 4
+            gd["y_pos"] = 0
             gen_new_blocks(gd)
             internal_pos_y = 0
 
@@ -221,7 +267,12 @@ def play_game(gd):
             move_block_down(gd)
             internal_pos_y = 0
 
-        print(f"x pos = {gd['x_pos']} ||| y pos = {gd['y_pos']} ||| direction = {gd['current_block'][1]} dt = {dt}")
+        if not can_go_down(gd):
+            copy_block_to_board(gd)
+            gd["current_block"] = None
+
+
+        # print(f"x pos = {gd['x_pos']} ||| y pos = {gd['y_pos']} ||| direction = {gd['current_block'][1]} dt = {dt}")
         draw_all(gd)
         pygame.display.update()
 
