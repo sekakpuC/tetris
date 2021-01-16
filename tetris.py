@@ -90,10 +90,13 @@ def rotate_block(gd):
 def move_block_down(gd):
     if not has_conflict(gd, gd["x_pos"], gd["y_pos"] + 1, gd["current_block"][1]):
         gd["y_pos"] += 1
+        return True
+    return False
 
 
 def drop_block(gd):
-    pass
+    while move_block_down(gd):
+        pass
 
 
 def hold_block(gd):
