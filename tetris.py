@@ -186,7 +186,7 @@ def play_game(gd):
     play_music()
     internal_pos_y = 0
     while running:
-        dt = clock.tick(3)
+        dt = clock.tick(30)
 
         if "current_block" not in gd or gd["current_block"] is None:
             gen_new_blocks(gd)
@@ -215,7 +215,7 @@ def play_game(gd):
 
         internal_pos_y += .1 * dt
         if internal_pos_y >= 50:
-            gd["y_pos"] += 1
+            move_block_down(gd)
             internal_pos_y = 0
 
         print(f"x pos = {gd['x_pos']} ||| y pos = {gd['y_pos']} ||| direction = {gd['current_block'][1]} dt = {dt}")
