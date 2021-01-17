@@ -245,6 +245,9 @@ def move_block_down(gd):
 def drop_block(gd):
     while move_block_down(gd):
         pass
+        gd["clock"].tick(30)
+        draw_all(gd)
+        pygame.display.update()
 
 
 def hold_block(gd):
@@ -471,6 +474,8 @@ def get_any_key(gd):
 def play_game(gd):
     gd["clock"] = pygame.time.Clock()
     running = True
+    last_drop_tick = 0
+    drop_buffer_time = 400 #milliseconds
 
     play_music()
     internal_pos_y = 0
@@ -499,8 +504,10 @@ def play_game(gd):
                     rotate_block(gd, -1)
                 elif e.key == pygame.K_DOWN:
                     move_block_down(gd)
+                    last_drop_tick = pygame.time.get_ticks()
                 elif e.key == pygame.K_SPACE:
                     drop_block(gd)
+                    last_drop_tick = pygame.time.get_ticks()
                 elif e.key == pygame.K_x:
                     hold_block(gd)
                 elif e.key == pygame.K_ESCAPE:
@@ -509,11 +516,14 @@ def play_game(gd):
         internal_pos_y += .1 * dt
         if internal_pos_y >= 50:
             move_block_down(gd)
+            last_drop_tick = pygame.time.get_ticks()
             internal_pos_y = 0
 
-        if not can_go_down(gd):
-            copy_block_to_board(gd)
-            gd["current_block"] = None
+        ticks_since_last_drop = pygame.time.get_ticks() - last_drop_tick
+        if ticks_since_last_drop > drop_buffer_time:
+            if not can_go_down(gd):
+                copy_block_to_board(gd)
+                gd["current_block"] = None
 
         num_deleted_rows = delete_rows(gd)
         if num_deleted_rows > 0:
