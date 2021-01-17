@@ -294,10 +294,13 @@ def draw_block(gd):
     for r in range(0, 4):
         for c in range(0, 4):
             stone = current_block[r][c]
-            stone_x = block_start_pos_x + 50 * c
-            stone_y = block_start_pos_y + 50 * r
+            mgn = 2
+            stone_x = block_start_pos_x + 50 * c + mgn
+            stone_y = block_start_pos_y + 50 * r + mgn
             if stone != ".":
-                gd["screen"].blit(gd[f"block_{block_letter}.png"], (stone_x, stone_y))
+                smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"],
+                                                       (int(50) - mgn * 2, int(50) - mgn * 2))
+                gd["screen"].blit(smaller_stone, (stone_x, stone_y))
 
 
 def draw_block_guide(gd):
@@ -339,10 +342,11 @@ def draw_next_block(gd):
             for r in range(0, 4):
                 for c in range(0, 4):
                     stone = next_block_stripe[r][c]
-                    stone_x = next_block_panel_start_x + 50 * c * .75
-                    stone_y = next_block_panel_start_y + i * 170 + 50 * r * .75
+                    mgn = 1
+                    stone_x = next_block_panel_start_x + 50 * c * .75 + mgn
+                    stone_y = next_block_panel_start_y + i * 170 + 50 * r * .75 + mgn
                     if stone != ".":
-                        smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75), int(50 * .75)))
+                        smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75) - mgn * 2, int(50 * .75) - mgn * 2))
                         gd["screen"].blit(smaller_stone, (stone_x, stone_y))
 
 
@@ -356,10 +360,11 @@ def draw_held_block(gd):
     for r in range(0, 4):
         for c in range(0, 4):
             stone = held_block_stripe[r][c]
-            stone_x = held_block_panel_start_x + 50 * c * .75
-            stone_y = held_block_panel_start_y + 50 * r * .75
+            mgn = 1
+            stone_x = held_block_panel_start_x + 50 * c * .75 + mgn
+            stone_y = held_block_panel_start_y + 50 * r * .75 + mgn
             if stone != ".":
-                smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75), int(50 * .75)))
+                smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75) - mgn * 2, int(50 * .75) - mgn * 2))
                 gd["screen"].blit(smaller_stone, (stone_x, stone_y))
 
 
@@ -367,11 +372,13 @@ def draw_board(gd):
     board = gd["board"]
     for r in range(20):
         for c in range(12):
-            stone_x = board_start_x + c * 50
-            stone_y = board_start_y + r * 50
+            mgn = 2
+            stone_x = board_start_x + c * 50 + mgn
+            stone_y = board_start_y + r * 50 + mgn
             board_stone = board[r][c]
             if board_stone != "x" and board_stone != ".":
-                gd["screen"].blit(gd[f"block_{board_stone}.png"], (stone_x, stone_y))
+                smaller_stone = pygame.transform.scale(gd[f"block_{board_stone}.png"], (50 - mgn * 2, 50 - mgn * 2))
+                gd["screen"].blit(smaller_stone, (stone_x, stone_y))
 
 
 def draw_score(gd):
