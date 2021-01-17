@@ -52,6 +52,98 @@ def initialize(gd):
                               ".s..",
                               "...."])
 
+    gd["blocks"]["i"] = []
+    gd["blocks"]["i"].append([".i..",
+                              ".i..",
+                              ".i..",
+                              ".i.."])
+    gd["blocks"]["i"].append(["....",
+                              "iiii",
+                              "....",
+                              "...."])
+    gd["blocks"]["i"].append(["..i.",
+                              "..i.",
+                              "..i.",
+                              "..i."])
+    gd["blocks"]["i"].append(["....",
+                              "....",
+                              "iiii",
+                              "...."])
+
+    gd["blocks"]["o"] = []
+    gd["blocks"]["o"].append(["oo..",
+                              "oo..",
+                              "....",
+                              "...."])
+    gd["blocks"]["o"].append(["oo..",
+                              "oo..",
+                              "....",
+                              "...."])
+    gd["blocks"]["o"].append(["oo..",
+                              "oo..",
+                              "....",
+                              "...."])
+    gd["blocks"]["o"].append(["oo..",
+                              "oo..",
+                              "....",
+                              "...."])
+
+    gd["blocks"]["t"] = []
+    gd["blocks"]["t"].append([".t..",
+                              "ttt.",
+                              "....",
+                              "...."])
+    gd["blocks"]["t"].append([".t..",
+                              ".tt.",
+                              ".t..",
+                              "...."])
+    gd["blocks"]["t"].append(["ttt.",
+                              ".t..",
+                              "....",
+                              "...."])
+    gd["blocks"]["t"].append([".t..",
+                              "tt..",
+                              ".t..",
+                              "...."])
+
+    gd["blocks"]["l"] = []
+    gd["blocks"]["l"].append([".l..",
+                              ".l..",
+                              ".ll.",
+                              "...."])
+    gd["blocks"]["l"].append(["....",
+                              "lll.",
+                              "l...",
+                              "...."])
+    gd["blocks"]["l"].append(["ll..",
+                              ".l..",
+                              ".l..",
+                              "...."])
+    gd["blocks"]["l"].append(["..l.",
+                              "lll.",
+                              "....",
+                              "...."])
+
+    gd["blocks"]["j"] = []
+    gd["blocks"]["j"].append([".j..",
+                              ".j..",
+                              "jj..",
+                              "...."])
+    gd["blocks"]["j"].append(["j...",
+                              "jjj.",
+                              "....",
+                              "...."])
+    gd["blocks"]["j"].append(["jj..",
+                              "j...",
+                              "j...",
+                              "...."])
+    gd["blocks"]["j"].append(["jjj.",
+                              "..j.",
+                              "....",
+                              "...."])
+
+
+
     return gd
 
 
