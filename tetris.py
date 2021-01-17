@@ -299,7 +299,20 @@ def draw_next_block(gd):
 
 
 def draw_held_block(gd):
-    pass
+    if "held_block" not in gd or gd["held_block"] is None:
+        return
+    held_block_tuple = gd["held_block"]
+    block_letter, direction = held_block_tuple
+    held_block_stripe = gd["blocks"][block_letter][direction]
+
+    for r in range(0, 4):
+        for c in range(0, 4):
+            stone = held_block_stripe[r][c]
+            stone_x = held_block_panel_start_x + 50 * c * .75
+            stone_y = held_block_panel_start_y + 50 * r * .75
+            if stone != ".":
+                smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75), int(50 * .75)))
+                gd["screen"].blit(smaller_stone, (stone_x, stone_y))
 
 
 def draw_board(gd):
@@ -414,7 +427,6 @@ def play_game(gd):
             if gen_new_blocks(gd) is False:
                 print("game over")
                 running = False
-
             internal_pos_y = 0
 
         for e in pygame.event.get():
