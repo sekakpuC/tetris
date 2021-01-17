@@ -26,12 +26,19 @@ fps = 30
 
 info_start_x = 25
 info_start_y = 100 + 200 * .75
+
+board_center_x = board_start_x + 250
+board_center_y = board_start_y + 500
+
+
 #########################################################
 
 def initialize(gd):
     for filename in glob.glob("*.png"):
         gd[filename] = pygame.image.load(filename)
     gd["game_font"] = pygame.font.Font(None, 40)
+
+    gd["game_over_msg"] = "Game Over"
 
     gd["board"] = []
     for i in range(20):
@@ -166,7 +173,7 @@ def initialize(gd):
                               "....",
                               "...."])
 
-    gd["score_table"] = [10,40,100,200]
+    gd["score_table"] = [10, 40, 100, 200]
     gd["score"] = 0
 
     return gd
@@ -211,6 +218,7 @@ def copy_block_to_board(gd):
                     board[block_y + r] = replace_stone(old_row, block_x + c, block_stone)
                     print(board[block_y + r])
 
+
 def move_block_left(gd):
     if not has_conflict(gd, gd["x_pos"] - 1, gd["y_pos"], gd["current_block"][1]):
         gd["x_pos"] -= 1
@@ -221,7 +229,7 @@ def move_block_right(gd):
         gd["x_pos"] += 1
 
 
-def rotate_block(gd,inc):
+def rotate_block(gd, inc):
     if not has_conflict(gd, gd["x_pos"], gd["y_pos"], (gd["current_block"][1] + 1) % 4):
         new_direction = (gd["current_block"][1] + inc + 4) % 4
         gd["current_block"] = (gd["current_block"][0], new_direction, gd["current_block"][2])
@@ -247,7 +255,7 @@ def hold_block(gd):
             gd["held_block"] = None
         if gd["held_block"] is not None:
             gd["held_block"], gd["current_block"] = gd["current_block"], gd["held_block"]
-            gd["current_block"] = gd["current_block"][0],gd["current_block"][1],"held"
+            gd["current_block"] = gd["current_block"][0], gd["current_block"][1], "held"
         else:
             gd["held_block"] = gd["current_block"]
             gd["current_block"] = None
@@ -302,7 +310,7 @@ def draw_next_block(gd):
             stone_x = next_block_panel_start_x + 50 * c * .75
             stone_y = next_block_panel_start_y + 50 * r * .75
             if stone != ".":
-                smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75),int(50 * .75)))
+                smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75), int(50 * .75)))
                 gd["screen"].blit(smaller_stone, (stone_x, stone_y))
 
 
@@ -324,8 +332,6 @@ def draw_held_block(gd):
 
 
 def draw_board(gd):
-    board_start_x = 200
-    board_start_y = 50
     board = gd["board"]
     for r in range(20):
         for c in range(12):
@@ -333,15 +339,29 @@ def draw_board(gd):
             stone_y = board_start_y + r * 50
             board_stone = board[r][c]
             if board_stone != "x" and board_stone != ".":
-                gd["screen"].blit(gd[f"block_{board_stone}.png"],(stone_x,stone_y))
+                gd["screen"].blit(gd[f"block_{board_stone}.png"], (stone_x, stone_y))
 
 
 def draw_score(gd):
     msg_txt = f"Score: {gd['score']}"
     msg = gd["game_font"].render(msg_txt, True, (255, 255, 255))
-    msg_rect = msg.get_rect()
-    msg_width, msg_height = msg_rect.size
     gd["screen"].blit(msg, (info_start_x, info_start_y))
+
+    msg_txt = "Controls:"
+    msg = gd["game_font"].render(msg_txt, True, (255, 255, 255))
+    gd["screen"].blit(msg, (info_start_x, info_start_y + 70))
+
+    msg_txt = "L/R Keys"
+    msg = gd["game_font"].render(msg_txt, True, (255, 255, 255))
+    gd["screen"].blit(msg, (info_start_x, info_start_y + 100))
+
+    msg_txt = "Rotate: Z, C"
+    msg = gd["game_font"].render(msg_txt, True, (255, 255, 255))
+    gd["screen"].blit(msg, (info_start_x, info_start_y + 130))
+
+    msg_txt = "Hold: X"
+    msg = gd["game_font"].render(msg_txt, True, (255, 255, 255))
+    gd["screen"].blit(msg, (info_start_x, info_start_y + 160))
 
 
 def draw_all(gd):
@@ -371,7 +391,7 @@ def gen_new_blocks(gd):
     while len(gd["next_blocks"]) < 2:
         gd["next_blocks"].append(gen_random_block(gd))
     gd["current_block"] = gd["next_blocks"].pop(0)
-    gd["current_block"] = (gd["current_block"][0],gd["current_block"][1],"next")
+    gd["current_block"] = (gd["current_block"][0], gd["current_block"][1], "next")
 
     gd["x_pos"] = 4
     gd["y_pos"] = 0
@@ -405,14 +425,14 @@ def full_row(gd, r):
 
 
 def move_rows_down(gd, r):
-    for r2 in range(r,0,-1):
-        gd["board"][r2] = gd["board"][r2-1]
+    for r2 in range(r, 0, -1):
+        gd["board"][r2] = gd["board"][r2 - 1]
     gd["board"][0] = "x..........x"
 
 
-def delete_row(gd,r):
-    if full_row(gd,r):
-        move_rows_down(gd,r)
+def delete_row(gd, r):
+    if full_row(gd, r):
+        move_rows_down(gd, r)
         return 1
     else:
         return 0
@@ -421,19 +441,41 @@ def delete_row(gd,r):
 def delete_rows(gd):
     num_deleted_rows = 0
     for r in range(20):
-        num_deleted_rows += delete_row(gd,r)
+        num_deleted_rows += delete_row(gd, r)
     return num_deleted_rows
 
 
-def play_game(gd):
-    clock = pygame.time.Clock()
+def center_msg(gd, msg_txt):
+    msg = gd["game_font"].render(msg_txt, True, (255, 255, 255))
+    msg_rect = msg.get_rect()
+    msg_width, msg_height = msg_rect.size
+    gd["screen"].blit(msg, (board_center_x - msg_width / 2, board_center_y - msg_height / 2))
+
+
+def get_any_key(gd):
     running = True
 
+    while running:
+        gd["clock"].tick(60)
+        for e in pygame.event.get():
+            if e:
+                if e.type == pygame.QUIT:
+                    exit(0)
+                if e.type == pygame.KEYDOWN:
+                    running = False
+        draw_all(gd)
+        center_msg(gd, gd["game_over_msg"])
+        pygame.display.update()
+
+
+def play_game(gd):
+    gd["clock"] = pygame.time.Clock()
+    running = True
 
     play_music()
     internal_pos_y = 0
     while running:
-        dt = clock.tick(fps)
+        dt = gd["clock"].tick(fps)
 
         if "current_block" not in gd or gd["current_block"] is None:
             if gen_new_blocks(gd) is False:
@@ -452,14 +494,14 @@ def play_game(gd):
                 elif e.key == pygame.K_RIGHT:
                     move_block_right(gd)
                 elif e.key == pygame.K_z or e.key == pygame.K_UP:
-                    rotate_block(gd,1)
+                    rotate_block(gd, 1)
                 elif e.key == pygame.K_c:
-                    rotate_block(gd,-1)
+                    rotate_block(gd, -1)
                 elif e.key == pygame.K_DOWN:
                     move_block_down(gd)
                 elif e.key == pygame.K_SPACE:
                     drop_block(gd)
-                elif e.key == pygame.K_h:
+                elif e.key == pygame.K_x:
                     hold_block(gd)
                 elif e.key == pygame.K_ESCAPE:
                     running = False
@@ -477,11 +519,11 @@ def play_game(gd):
         if num_deleted_rows > 0:
             gd["score"] += gd["score_table"][num_deleted_rows - 1]
 
-
-        # print(f"x pos = {gd['x_pos']} ||| y pos = {gd['y_pos']} ||| direction = {gd['current_block'][1]} dt = {dt}")
-        print(gd["score"])
         draw_all(gd)
         pygame.display.update()
+
+    print(f"Score: {gd['score']}")
+    get_any_key(gd)
 
 
 def start_game():
