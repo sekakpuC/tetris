@@ -245,9 +245,9 @@ def move_block_down(gd):
 def drop_block(gd):
     while move_block_down(gd):
         pass
-        gd["clock"].tick(30)
-        draw_all(gd)
-        pygame.display.update()
+        # gd["clock"].tick(30)
+        # draw_all(gd)
+        # pygame.display.update()
 
 
 def hold_block(gd):
@@ -466,15 +466,19 @@ def move_rows_down(gd, r):
 def delete_row(gd, r):
     if full_row(gd, r):
         move_rows_down(gd, r)
-        return 1
+        return True
     else:
-        return 0
+        return False
 
 
 def delete_rows(gd):
     num_deleted_rows = 0
     for r in range(20):
-        num_deleted_rows += delete_row(gd, r)
+        if delete_row(gd, r):
+            draw_all(gd)
+            pygame.display.update()
+            pygame.time.delay(50)
+            num_deleted_rows += 1
     return num_deleted_rows
 
 
