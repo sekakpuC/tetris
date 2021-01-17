@@ -162,7 +162,8 @@ def initialize(gd):
                               "....",
                               "...."])
 
-
+    gd["score_table"] = [10,40,100,200]
+    gd["score"] = 0
 
     return gd
 
@@ -376,12 +377,16 @@ def move_rows_down(gd, r):
 def delete_row(gd,r):
     if full_row(gd,r):
         move_rows_down(gd,r)
-
+        return 1
+    else:
+        return 0
 
 
 def delete_rows(gd):
+    num_deleted_rows = 0
     for r in range(20):
-        delete_row(gd,r)
+        num_deleted_rows += delete_row(gd,r)
+    return num_deleted_rows
 
 
 def play_game(gd):
@@ -431,10 +436,13 @@ def play_game(gd):
             copy_block_to_board(gd)
             gd["current_block"] = None
 
-        delete_rows(gd)
+        num_deleted_rows = delete_rows(gd)
+        if num_deleted_rows > 0:
+            gd["score"] += gd["score_table"][num_deleted_rows - 1]
+
 
         # print(f"x pos = {gd['x_pos']} ||| y pos = {gd['y_pos']} ||| direction = {gd['current_block'][1]} dt = {dt}")
-        print(gd["next_blocks"])
+        print(gd["score"])
         draw_all(gd)
         pygame.display.update()
 
