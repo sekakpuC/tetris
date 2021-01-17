@@ -221,12 +221,10 @@ def move_block_right(gd):
         gd["x_pos"] += 1
 
 
-def rotate_block(gd):
+def rotate_block(gd,inc):
     if not has_conflict(gd, gd["x_pos"], gd["y_pos"], (gd["current_block"][1] + 1) % 4):
-        new_direction = gd["current_block"][1] + 1
-        if new_direction > 3:
-            new_direction = 0
-        gd["current_block"] = (gd["current_block"][0], new_direction)
+        new_direction = (gd["current_block"][1] + inc + 4) % 4
+        gd["current_block"] = (gd["current_block"][0], new_direction, gd["current_block"][2])
 
 
 def move_block_down(gd):
@@ -242,7 +240,17 @@ def drop_block(gd):
 
 
 def hold_block(gd):
-    pass
+    if gd["current_block"][2] == "" or gd["current_block"][2] == "held":
+        return
+    else:
+        if "held_block" not in gd:
+            gd["held_block"] = None
+        if gd["held_block"] is not None:
+            gd["held_block"], gd["current_block"] = gd["current_block"], gd["held_block"]
+            gd["current_block"] = gd["current_block"][0],gd["current_block"][1],"held"
+        else:
+            gd["held_block"] = gd["current_block"]
+            gd["current_block"] = None
 
 
 def draw_background(gd):
@@ -285,7 +293,7 @@ def draw_next_block(gd):
     if "next_blocks" not in gd or gd["next_blocks"] is None or len(gd["next_blocks"]) == 0:
         return
     next_block_tuple = gd["next_blocks"][0]
-    block_letter, direction = next_block_tuple
+    block_letter, direction, source = next_block_tuple
     next_block_stripe = gd["blocks"][block_letter][direction]
 
     for r in range(0, 4):
@@ -302,7 +310,7 @@ def draw_held_block(gd):
     if "held_block" not in gd or gd["held_block"] is None:
         return
     held_block_tuple = gd["held_block"]
-    block_letter, direction = held_block_tuple
+    block_letter, direction, source = held_block_tuple
     held_block_stripe = gd["blocks"][block_letter][direction]
 
     for r in range(0, 4):
@@ -354,7 +362,7 @@ def gen_new_block_letter(gd):
 
 
 def gen_random_block(gd):
-    return gen_new_block_letter(gd), randint(0, 3)
+    return gen_new_block_letter(gd), randint(0, 3), ""
 
 
 def gen_new_blocks(gd):
@@ -363,6 +371,7 @@ def gen_new_blocks(gd):
     while len(gd["next_blocks"]) < 2:
         gd["next_blocks"].append(gen_random_block(gd))
     gd["current_block"] = gd["next_blocks"].pop(0)
+    gd["current_block"] = (gd["current_block"][0],gd["current_block"][1],"next")
 
     gd["x_pos"] = 4
     gd["y_pos"] = 0
@@ -378,7 +387,10 @@ def play_music():
 
 
 def can_go_down(gd):
-    if not has_conflict(gd, gd["x_pos"], gd["y_pos"] + 1, gd["current_block"][1]):
+    if "current_block" not in gd or gd["current_block"] is None:
+        return True
+    direction = gd["current_block"][1]
+    if not has_conflict(gd, gd["x_pos"], gd["y_pos"] + 1, direction):
         return True
     return False
 
@@ -439,8 +451,10 @@ def play_game(gd):
                     move_block_left(gd)
                 elif e.key == pygame.K_RIGHT:
                     move_block_right(gd)
-                elif e.key == pygame.K_UP:
-                    rotate_block(gd)
+                elif e.key == pygame.K_z or e.key == pygame.K_UP:
+                    rotate_block(gd,1)
+                elif e.key == pygame.K_c:
+                    rotate_block(gd,-1)
                 elif e.key == pygame.K_DOWN:
                     move_block_down(gd)
                 elif e.key == pygame.K_SPACE:
