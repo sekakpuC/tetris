@@ -30,7 +30,7 @@ info_start_y = 100 + 200 * .75
 board_center_x = board_start_x + 250
 board_center_y = board_start_y + 500
 
-
+num_next_blocks = 3
 #########################################################
 
 def initialize(gd):
@@ -331,14 +331,19 @@ def draw_next_block(gd):
     block_letter, direction, source = next_block_tuple
     next_block_stripe = gd["blocks"][block_letter][direction]
 
-    for r in range(0, 4):
-        for c in range(0, 4):
-            stone = next_block_stripe[r][c]
-            stone_x = next_block_panel_start_x + 50 * c * .75
-            stone_y = next_block_panel_start_y + 50 * r * .75
-            if stone != ".":
-                smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75), int(50 * .75)))
-                gd["screen"].blit(smaller_stone, (stone_x, stone_y))
+    for i in range(num_next_blocks):
+        if len(gd["next_blocks"]) > i:
+            next_block_tuple = gd["next_blocks"][i]
+            block_letter, direction, source = next_block_tuple
+            next_block_stripe = gd["blocks"][block_letter][direction]
+            for r in range(0, 4):
+                for c in range(0, 4):
+                    stone = next_block_stripe[r][c]
+                    stone_x = next_block_panel_start_x + 50 * c * .75
+                    stone_y = next_block_panel_start_y + i * 170 + 50 * r * .75
+                    if stone != ".":
+                        smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75), int(50 * .75)))
+                        gd["screen"].blit(smaller_stone, (stone_x, stone_y))
 
 
 def draw_held_block(gd):
@@ -416,7 +421,7 @@ def gen_random_block(gd):
 def gen_new_blocks(gd):
     if "next_blocks" not in gd:
         gd["next_blocks"] = []
-    while len(gd["next_blocks"]) < 2:
+    while len(gd["next_blocks"]) < num_next_blocks + 1:
         gd["next_blocks"].append(gen_random_block(gd))
     gd["current_block"] = gd["next_blocks"].pop(0)
     gd["current_block"] = (gd["current_block"][0], gd["current_block"][1], "next")
