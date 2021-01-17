@@ -509,6 +509,11 @@ def play_game(gd):
 
     play_music()
     internal_pos_y = 0
+
+    long_press_start_tick = 0
+    long_press_threshold_in_msec = 250
+    long_press_first_press_handled = False
+    long_press_repeat_in_msec = 150
     while running:
         dt = gd["clock"].tick(fps)
 
@@ -525,9 +530,13 @@ def play_game(gd):
 
             if e.type == pygame.KEYDOWN:
                 if e.key == pygame.K_LEFT:
-                    move_block_left(gd)
+                    long_press_start_tick = pygame.time.get_ticks()
+                    long_press_first_press_handled = False
+                    x_direction = -1
                 elif e.key == pygame.K_RIGHT:
-                    move_block_right(gd)
+                    long_press_start_tick = pygame.time.get_ticks()
+                    long_press_first_press_handled = False
+                    x_direction = 1
                 elif e.key == pygame.K_z or e.key == pygame.K_UP:
                     rotate_block(gd, 1)
                 elif e.key == pygame.K_c:
@@ -542,6 +551,26 @@ def play_game(gd):
                     hold_block(gd)
                 elif e.key == pygame.K_ESCAPE:
                     running = False
+            elif e.type == pygame.KEYUP:
+                long_press_start_tick = 0
+
+        if long_press_start_tick > 0:
+            long_press_duration_in_msec = pygame.time.get_ticks() - long_press_start_tick
+            if long_press_duration_in_msec < long_press_threshold_in_msec:
+                if long_press_first_press_handled is False:
+                    long_press_first_press_handled = True
+                    if x_direction > 0:
+                        move_block_right(gd)
+                    elif x_direction < 0:
+                        move_block_left(gd)
+            else:
+                inc = (long_press_duration_in_msec - long_press_threshold_in_msec) / long_press_repeat_in_msec
+                if x_direction > 0:
+                    for x in range(int(inc)):
+                        move_block_right(gd)
+                elif x_direction < 0:
+                    for x in range(int(inc)):
+                        move_block_left(gd)
 
         internal_pos_y += .1 * dt
         if internal_pos_y >= 50:
