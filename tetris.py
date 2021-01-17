@@ -9,9 +9,10 @@ def initialize(gd):
         gd[filename] = pygame.image.load(filename)
 
     gd["board"] = []
-    for i in range(20):
-        arr = "x..........x"
+    for i in range(19):
+        arr = "xz.........x"
         gd["board"].append(arr)
+    gd["board"].append("xzzzzzzz.zzx")
     gd["board"].append("xxxxxxxxxxxx")
 
     gd["blocks"] = {}
@@ -28,28 +29,28 @@ def initialize(gd):
                               "zz..",
                               ".zz.",
                               "...."])
-    gd["blocks"]["z"].append(["....",
-                              ".z..",
+    gd["blocks"]["z"].append([".z..",
                               "zz..",
-                              "z..."])
+                              "z...",
+                              "...."])
 
     gd["blocks"]["s"] = []
-    gd["blocks"]["s"].append(["ss..",
-                              ".ss.",
+    gd["blocks"]["s"].append([".ss.",
+                              "ss..",
                               "....",
                               "...."])
-    gd["blocks"]["s"].append([".s..",
+    gd["blocks"]["s"].append(["s...",
                               "ss..",
-                              "s...",
-                              "...."])
-    gd["blocks"]["s"].append(["....",
-                              "ss..",
-                              ".ss.",
-                              "...."])
-    gd["blocks"]["s"].append(["....",
                               ".s..",
+                              "...."])
+    gd["blocks"]["s"].append(["....",
+                              ".ss.",
                               "ss..",
-                              "s..."])
+                              "...."])
+    gd["blocks"]["s"].append(["s...",
+                              "ss..",
+                              ".s..",
+                              "...."])
 
     return gd
 
@@ -225,6 +226,32 @@ def can_go_down(gd):
     return False
 
 
+def full_row(gd, r):
+    row = gd["board"][r]
+    for ch in row:
+        if ch == '.':
+            return False
+    else:
+        return True
+
+
+def move_rows_down(gd, r):
+    for r2 in range(r,0,-1):
+        gd["board"][r2] = gd["board"][r2-1]
+    gd["board"][0] = "x..........x"
+
+
+def delete_row(gd,r):
+    if full_row(gd,r):
+        move_rows_down(gd,r)
+
+
+
+def delete_rows(gd):
+    for r in range(20):
+        delete_row(gd,r)
+
+
 def play_game(gd):
     clock = pygame.time.Clock()
     running = True
@@ -271,6 +298,7 @@ def play_game(gd):
             copy_block_to_board(gd)
             gd["current_block"] = None
 
+        delete_rows(gd)
 
         # print(f"x pos = {gd['x_pos']} ||| y pos = {gd['y_pos']} ||| direction = {gd['current_block'][1]} dt = {dt}")
         draw_all(gd)
