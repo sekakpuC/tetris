@@ -3,16 +3,36 @@ from random import randint
 
 import pygame
 
+#########################################################
+left_panel_start_x = 0
+left_panel_start_y = 0
+
+board_start_x = 200
+board_start_y = 50
+
+stage_start_x = 200
+stage_start_y = board_start_y + 1000
+
+right_panel_start_x = board_start_x + 600
+right_panel_start_y = 0
+
+held_block_panel_start_x = 25
+held_block_panel_start_y = 50
+
+next_block_panel_start_x = right_panel_start_x + 25
+next_block_panel_start_y = 50
+
+fps = 30
+#########################################################
 
 def initialize(gd):
     for filename in glob.glob("*.png"):
         gd[filename] = pygame.image.load(filename)
 
     gd["board"] = []
-    for i in range(19):
-        arr = "xz.........x"
+    for i in range(20):
+        arr = "x..........x"
         gd["board"].append(arr)
-    gd["board"].append("xzzzzzzz.zzx")
     gd["board"].append("xxxxxxxxxxxx")
 
     gd["blocks"] = {}
@@ -257,7 +277,22 @@ def draw_block(gd):
 
 
 def draw_next_block(gd):
-    pass
+    # picture = pygame.image.load(filename)
+
+    if "next_blocks" not in gd or gd["next_blocks"] is None or len(gd["next_blocks"]) == 0:
+        return
+    next_block_tuple = gd["next_blocks"][0]
+    block_letter, direction = next_block_tuple
+    next_block_stripe = gd["blocks"][block_letter][direction]
+
+    for r in range(0, 4):
+        for c in range(0, 4):
+            stone = next_block_stripe[r][c]
+            stone_x = next_block_panel_start_x + 50 * c * .75
+            stone_y = next_block_panel_start_y + 50 * r * .75
+            if stone != ".":
+                smaller_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .75),int(50 * .75)))
+                gd["screen"].blit(smaller_stone, (stone_x, stone_y))
 
 
 def draw_held_block(gd):
@@ -302,7 +337,7 @@ def gen_new_blocks(gd):
         gd["next_blocks"] = []
     while len(gd["next_blocks"]) < 2:
         gd["next_blocks"].append(gen_random_block(gd))
-    gd["current_block"] = gd["next_blocks"].pop()
+    gd["current_block"] = gd["next_blocks"].pop(0)
 
     gd["x_pos"] = 4
     gd["y_pos"] = 0
@@ -357,7 +392,7 @@ def play_game(gd):
     play_music()
     internal_pos_y = 0
     while running:
-        dt = clock.tick(30)
+        dt = clock.tick(fps)
 
         if "current_block" not in gd or gd["current_block"] is None:
             if gen_new_blocks(gd) is False:
@@ -399,6 +434,7 @@ def play_game(gd):
         delete_rows(gd)
 
         # print(f"x pos = {gd['x_pos']} ||| y pos = {gd['y_pos']} ||| direction = {gd['current_block'][1]} dt = {dt}")
+        print(gd["next_blocks"])
         draw_all(gd)
         pygame.display.update()
 
