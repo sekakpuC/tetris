@@ -300,6 +300,30 @@ def draw_block(gd):
                 gd["screen"].blit(gd[f"block_{block_letter}.png"], (stone_x, stone_y))
 
 
+def draw_block_guide(gd):
+    if "current_block" not in gd or gd["current_block"] is None:
+        return
+
+    guide_block_y_pos = gd["y_pos"]
+    while not has_conflict(gd, gd["x_pos"], guide_block_y_pos, gd["current_block"][1]):
+        guide_block_y_pos += 1
+    guide_block_y_pos -= 1
+
+    block_letter = gd["current_block"][0]
+    block_direction = gd["current_block"][1]
+    current_block = gd["blocks"][block_letter][block_direction]
+    block_start_pos_x = 250 + (50 * (gd["x_pos"] - 1))
+    block_start_pos_y = 50 + (50 * guide_block_y_pos)
+    for r in range(0, 4):
+        for c in range(0, 4):
+            stone = current_block[r][c]
+            stone_x = block_start_pos_x + 50 * c
+            stone_y = block_start_pos_y + 50 * r
+            if stone != ".":
+                alpha_stone = pygame.transform.scale(gd[f"block_{block_letter}.png"], (int(50 * .5), int(50 * .5)))
+                gd["screen"].blit(alpha_stone, (stone_x + 25 * 0.5, stone_y + 25 * 0.5))
+
+
 def draw_next_block(gd):
     if "next_blocks" not in gd or gd["next_blocks"] is None or len(gd["next_blocks"]) == 0:
         return
@@ -374,6 +398,7 @@ def draw_all(gd):
     draw_walls(gd)
     draw_board(gd)
     draw_block(gd)
+    draw_block_guide(gd)
     draw_next_block(gd)
     draw_held_block(gd)
     draw_score(gd)
