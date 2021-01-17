@@ -212,6 +212,11 @@ def gen_new_blocks(gd):
         gd["next_blocks"].append(gen_random_block(gd))
     gd["current_block"] = gd["next_blocks"].pop()
 
+    gd["x_pos"] = 4
+    gd["y_pos"] = 0
+
+    return not has_conflict(gd, gd["x_pos"], gd["y_pos"], gd["current_block"][1])
+
 
 def play_music():
     pygame.mixer.init()
@@ -263,9 +268,10 @@ def play_game(gd):
         dt = clock.tick(30)
 
         if "current_block" not in gd or gd["current_block"] is None:
-            gd["x_pos"] = 4
-            gd["y_pos"] = 0
-            gen_new_blocks(gd)
+            if gen_new_blocks(gd) is False:
+                print("game over")
+                running = False
+
             internal_pos_y = 0
 
         for e in pygame.event.get():
