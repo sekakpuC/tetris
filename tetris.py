@@ -23,11 +23,15 @@ next_block_panel_start_x = right_panel_start_x + 25
 next_block_panel_start_y = 50
 
 fps = 30
+
+info_start_x = 25
+info_start_y = 100 + 200 * .75
 #########################################################
 
 def initialize(gd):
     for filename in glob.glob("*.png"):
         gd[filename] = pygame.image.load(filename)
+    gd["game_font"] = pygame.font.Font(None, 40)
 
     gd["board"] = []
     for i in range(20):
@@ -278,8 +282,6 @@ def draw_block(gd):
 
 
 def draw_next_block(gd):
-    # picture = pygame.image.load(filename)
-
     if "next_blocks" not in gd or gd["next_blocks"] is None or len(gd["next_blocks"]) == 0:
         return
     next_block_tuple = gd["next_blocks"][0]
@@ -313,6 +315,14 @@ def draw_board(gd):
                 gd["screen"].blit(gd[f"block_{board_stone}.png"],(stone_x,stone_y))
 
 
+def draw_score(gd):
+    msg_txt = f"Score: {gd['score']}"
+    msg = gd["game_font"].render(msg_txt, True, (255, 255, 255))
+    msg_rect = msg.get_rect()
+    msg_width, msg_height = msg_rect.size
+    gd["screen"].blit(msg, (info_start_x, info_start_y))
+
+
 def draw_all(gd):
     draw_background(gd)
     draw_side_panels(gd)
@@ -322,6 +332,7 @@ def draw_all(gd):
     draw_block(gd)
     draw_next_block(gd)
     draw_held_block(gd)
+    draw_score(gd)
 
 
 def gen_new_block_letter(gd):
